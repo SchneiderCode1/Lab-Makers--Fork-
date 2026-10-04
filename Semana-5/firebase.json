@@ -1,24 +1,15 @@
 {
-  "firestore": {
-    
-    "database": "(default)",
-    "location": "southamerica-west1",
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  },
   "hosting": {
-    "public": "frontend/out",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    "public": "Semana-5/frontend/my-app/out",
     "rewrites": [
       {
         "source": "**",
         "destination": "/index.html"
       }
     ]
+  },
+  "firestore": {
+    "rules": "firestore.rules"
   },
   "emulators": {
     "firestore": {
