@@ -216,6 +216,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./Semana-5/frontend
-          file: Dockerfile.prod
+          file: ./Semana-5/frontend/Dockerfile.prod
           push: true
           tags: ${{ steps.meta.outputs.tags }}
