@@ -17,10 +17,10 @@ services:
 
   backend:
     build:
-      context: ./backend/Semana5e6
-      dockerfile: ../Dockerfile.prod
+      context: ./backend
+      dockerfile: Dockerfile
     volumes:
-      - ./backend/Semana5e6:/app # Bind mount para Hot Reload no backend
+      - ./backend:/app # Bind mount para Hot Reload no backend
     ports:
       - "8000:8000"
     environment:
@@ -35,10 +35,10 @@ services:
 
   frontend:
     build:
-      context: ./frontend/my-app
-      dockerfile: ../Dockerfile.prod
+      context: ./frontend
+      dockerfile: Dockerfile
     volumes:
-      - ./frontend/my-app:/app # Bind mount para Hot Reload no frontend
+      - ./frontend:/app # Bind mount para Hot Reload no frontend
       - /app/node_modules
     ports:
       - "3000:3000"

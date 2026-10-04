@@ -23,4 +23,6 @@ ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
 # Cria um usuário não-root para segurança
-RUN addgroup --system --gid 100A
+RUN addgroup --system --gid 101 appgroup
+RUN adduser --system --uid 101 --ingroup appgroup appuser
+USER appuser
