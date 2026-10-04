@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-
+//add
 
 export default function Home() {
   //console.log(erro_controlado)
