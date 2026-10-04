@@ -1,0 +1,36 @@
+FROM python:3.12-alpine AS builder
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+RUN apk add --no-cache gcc musl-dev postgresql-dev
+
+COPY requirements.txt .
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
+
+# Estágio Final (Runtime)
+FROM python:3.12-alpine
+
+WORKDIR /app
+
+# Instala apenas as dependências de sistema necessárias em runtime
+RUN apk add --no-cache libpq
+
+COPY --from=builder /app/wheels /wheels
+RUN pip install --no-cache /wheels/*
+
+COPY . .
+
+# Garante a instalação do Gunicorn para produção
+RUN pip install --no-cache-dir gunicorn
+
+# Cria e alterna para um usuário sem privilégios de root
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+
+EXPOSE 8000
+
+# Executa com o servidor WSGI de produção
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]

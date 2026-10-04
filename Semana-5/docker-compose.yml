@@ -18,7 +18,7 @@ services:
   backend:
     build:
       context: ./backend/Semana5e6
-      dockerfile: ../Dockerfile
+      dockerfile: ../Dockerfile.prod
     volumes:
       - ./backend/Semana5e6:/app # Bind mount para Hot Reload no backend
     ports:
@@ -36,7 +36,7 @@ services:
   frontend:
     build:
       context: ./frontend/my-app
-      dockerfile: ../Dockerfile
+      dockerfile: ../Dockerfile.prod
     volumes:
       - ./frontend/my-app:/app # Bind mount para Hot Reload no frontend
       - /app/node_modules
