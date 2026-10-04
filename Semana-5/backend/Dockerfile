@@ -3,7 +3,7 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Instala as dependências
-COPY erro_controlado_requirements.txt .
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copia o código-fonte
