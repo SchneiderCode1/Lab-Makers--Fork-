@@ -1,10 +1,15 @@
-name: CI Pipeline - Semana 5
+name: CI/CD Pipeline - Semana 5
 
 on:
   push:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+
+# Permissões necessárias para publicar pacotes no GHCR
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   # ==========================================
@@ -31,15 +36,13 @@ jobs:
 
       - name: Executar Lint (Flake8)
         run: |
-          # Interrompe se houver erros de sintaxe ou variáveis não definidas
           flake8 Semana-5/backend --count --select=E9,F63,F7,F82 --show-source --statistics
-          # Avisos de estilo e tamanho de linha
           flake8 Semana-5/backend --count --max-line-length=127 --statistics
 
   build-backend:
     name: Build Container Backend
     runs-on: ubuntu-latest
-    needs: lint-backend # Fail-fast: só executa se o lint passar
+    needs: lint-backend
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
@@ -51,7 +54,7 @@ jobs:
   test-backend:
     name: Test Backend
     runs-on: ubuntu-latest
-    needs: build-backend # Fail-fast: só executa se o build passar
+    needs: build-backend
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
@@ -73,6 +76,39 @@ jobs:
         run: |
           cd Semana-5/backend/Semana5e6
           python manage.py test
+
+  deploy-backend:
+    name: Publicar Imagem Backend no GHCR
+    runs-on: ubuntu-latest
+    needs: test-backend # Executa apenas se os testes do backend passarem
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Autenticar no GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extrair metadados para tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-backend
+          tags: |
+            type=raw,value=latest
+            type=sha,format=long
+
+      - name: Build e Push da Imagem de Produção
+        uses: docker/build-push-action@v5
+        with:
+          context: ./Semana-5/backend
+          file: ./Semana-5/backend/Dockerfile.prod
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
 
   # ==========================================
   # TRILHA DO FRONTEND (Next.js)
@@ -104,7 +140,7 @@ jobs:
   build-frontend:
     name: Build Frontend
     runs-on: ubuntu-latest
-    needs: lint-frontend # Fail-fast: só executa se o lint passar
+    needs: lint-frontend
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
@@ -129,7 +165,7 @@ jobs:
   test-frontend:
     name: Test Frontend
     runs-on: ubuntu-latest
-    needs: build-frontend # Fail-fast: só executa se o build passar
+    needs: build-frontend
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
@@ -150,3 +186,36 @@ jobs:
         run: |
           cd Semana-5/frontend/my-app
           npm test --if-present
+
+  deploy-frontend:
+    name: Publicar Imagem Frontend no GHCR
+    runs-on: ubuntu-latest
+    needs: test-frontend # Executa apenas se os testes do frontend passarem
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Autenticar no GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extrair metadados para tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-frontend
+          tags: |
+            type=raw,value=latest
+            type=sha,format=long
+
+      - name: Build e Push da Imagem de Produção
+        uses: docker/build-push-action@v5
+        with:
+          context: ./Semana-5/frontend/my-app
+          file: ./Semana-5/frontend/my-app/Dockerfile.prod
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
