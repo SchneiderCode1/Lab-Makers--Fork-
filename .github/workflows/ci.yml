@@ -45,7 +45,7 @@ jobs:
 
       - name: Validar Build da Imagem Docker DEV
         run: |
-          docker build -t backend-dev ./backend
+          docker build -t backend-dev Semana-5/backend
 
   test-backend:
     name: Test Backend
