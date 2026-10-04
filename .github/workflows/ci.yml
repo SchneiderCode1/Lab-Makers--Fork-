@@ -31,9 +31,9 @@ jobs:
       - name: Executar Lint (Flake8)
         run: |
           # Para se houver erros de sintaxe ou variáveis não definidas
-          flake8 backend/ --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 '.\Semana 5\backend\' --count --select=E9,F63,F7,F82 --show-source --statistics
           # Avisos leves
-          flake8 backend/ --count --max-line-length=127 --statistics
+          flake8 '.\Semana 5\backend\' --count --max-line-length=127 --statistics
 
   build-backend:
     name: Build Container Backend
@@ -64,11 +64,11 @@ jobs:
       - name: Instalar dependências
         run: |
           python -m pip install --upgrade pip
-          if [ -f backend/requirements.txt ]; then pip install -r backend/requirements.txt; fi
+          if [ -f '.\Semana 5\backend\Semana5e6\requirements.txt' ]; then pip install -r '.\Semana 5\backend\Semana5e6\requirements.txt'; fi
 
       - name: Executar Testes do Django
         run: |
-          cd backend
+          cd '.\Semana 5\backend\Semana5e6\'
           python manage.py test
 
   # ==========================================
@@ -90,12 +90,12 @@ jobs:
 
       - name: Instalar dependências
         run: |
-          cd frontend
+          cd Semana 5/frontend
           npm ci
 
       - name: Executar Lint (ESLint)
         run: |
-          cd frontend
+          cd Semana 5/frontend
           npm run lint --if-present
 
   build-frontend:
