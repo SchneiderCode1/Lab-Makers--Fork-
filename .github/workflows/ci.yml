@@ -215,7 +215,7 @@ jobs:
       - name: Build e Push da Imagem de Produção
         uses: docker/build-push-action@v5
         with:
-          context: ./Semana-5/frontend/my-app
-          file: ./Semana-5/frontend/my-app/Dockerfile.prod
+          context: ./Semana-5/frontend
+          file: Dockerfile.prod
           push: true
           tags: ${{ steps.meta.outputs.tags }}
