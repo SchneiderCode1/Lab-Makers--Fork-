@@ -1,6 +1,11 @@
 {
   "hosting": {
-    "public": "Semana-5/frontend/my-app/out",
+    "public": "frontend/my-app/out",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
     "rewrites": [
       {
         "source": "**",
