@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { db } from "../lib/firebase"; 
+import { collection, getDocs, QueryDocumentSnapshot } from "firebase/firestore"; // Importe QueryDocumentSnapshot
 
 export default function Home() {
   const [items, setItems] = useState<string[]>([]);
@@ -10,12 +12,26 @@ export default function Home() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await fetch("http://localhost:8000/api/items/");
-        if (!res.ok) throw new Error("Falha ao carregar dados do servidor.");
-        const data = await res.json();
-        setItems(data.items || []);
+        const dataSource = process.env.NEXT_PUBLIC_DATA_SOURCE || 'api';
+
+        if (dataSource === 'firestore') {
+          const querySnapshot = await getDocs(collection(db, "items"));
+
+          // Adicione a tipagem em doc: QueryDocumentSnapshot
+          const fetchedItems = querySnapshot.docs.map((doc: QueryDocumentSnapshot) => {
+            const data = doc.data();
+            return (data.name as string) || (data.title as string) || "Item sem nome";
+          });
+
+          setItems(fetchedItems);
+        } else {
+          const res = await fetch("http://localhost:8000/api/items/");
+          if (!res.ok) throw new Error("Falha ao carregar dados do servidor.");
+          const data = await res.json();
+          setItems(data.items || []);
+        }
       } catch (err) {
-        console.warn("Backend indisponível no momento:", err);
+        console.warn("Erro ao buscar dados do Firestore:", err);
         setErrorMsg("Dados temporariamente indisponíveis.");
       } finally {
         setLoading(false);
@@ -37,10 +53,9 @@ export default function Home() {
         ) : errorMsg ? (
           <div className="w-full rounded-lg bg-amber-50 p-4 border border-amber-200 text-amber-800 dark:bg-amber-950/30 dark:border-amber-900 dark:text-amber-200 text-center">
             <p className="font-medium">{errorMsg}</p>
-            <p className="text-xs mt-1 text-amber-700 dark:text-amber-400">
-              O backend remoto não respondeu à requisição.
-            </p>
           </div>
+        ) : items.length === 0 ? (
+          <p className="text-zinc-500">Nenhum item encontrado no banco.</p>
         ) : (
           <ul className="w-full space-y-2">
             {items.map((item, index) => (
